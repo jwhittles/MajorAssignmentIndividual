@@ -15,6 +15,7 @@ let fft;
 let numBins = 128;
 let smoothing = 0.5;
 let button;
+let clouds = [];
 
 //Class for the clouds
 class Cloud {
@@ -89,6 +90,20 @@ class Cloud {
       ellipse(this.x - this.size * 0.5, this.y + this.size * 0.2 + yOffset, (this.size - i) * 0.8);
     }
   }
+
+  display(spectrumValue){
+    noStroke();
+    fill(255, 255, - spectrumValue * 255, 255);
+    this.size = map(spectrumValue, 0, 1, windowWidth/40, windowWidth/10);
+    ellipse(this.x, this.y, this.size);
+  }
+}
+
+// Initalises the sound
+function preload(){
+  song = loadSound('Music/755199__danjfilms__biblically-accurate-angel-dying-death-of-a-god.wav');
+  fft = new p5.FFT(smoothing, numBins);
+  song.connect(fft);
 }
 
 function setup() {
@@ -110,8 +125,8 @@ function setup() {
 
   initaliseClouds();
 
+
   // This part of the code creates a button at the bottom of the canvas which allows the user to start or pause the sound file.
-  fft = new p5.FFT(smoothing, numBins);
   button = createButton('Play/Pause');
   button.position((width - button.width) / 2, height - button.height - 2);
   button.mousePressed(play_pause);
@@ -146,6 +161,7 @@ function draw() {
     g = lerp(green(sunsetColor), green(nightColor), nightProgress);
     b = lerp(blue(sunsetColor), blue(nightColor), nightProgress);
   }
+
   background(r, g, b); // Set background color
 
   // Clouds move across the window
@@ -153,9 +169,6 @@ function draw() {
     cloud.move();
     cloud.show();
   }
-
-  //Get the frequency spectrum data from the source sound
-  let spectrum = fft.analysis;
 
   // Draw tree animation
   drawBaseStructure(scaleFactor);
@@ -167,6 +180,13 @@ function draw() {
       circleSizes[i] += growthSpeed*scaleFactor;
     }
   }
+
+  //Get the frequency spectrum data from the source sound
+  let spectrum = fft.analyze();
+  for (let i = 0; i < clouds.length; i++){
+    let spectrumValue = spectrum[i]/255;
+    clouds[i].display(spectrumValue);
+  }
 }
 
 // Draw the base structure (flowerpot)
@@ -176,37 +196,14 @@ function drawBaseStructure(scaleFactor) {
   rectMode(CENTER);
   rect(width / 2, height - 150*scaleFactor, 350*scaleFactor, 80*scaleFactor);
 
-  // Map the frequency spectrum to low and high frequencies
-  let lowFrequencyAverage = 0;
-  let highFrequencyAverage = 0;
-
-  let lowFrequencyRange = [0, 30];
-  let highFrequencyRange = [90, 120];
-
-  for (let i = lowFrequencyRange[0]; i <= lowFrequencyRange; i++){
-    lowFrequencyAverage += spectrum[i];
-  }
-  lowFrequencyAverage /= (lowFrequencyRange[1] - lowFrequencyRange[0] + 1);
-
-  for (let i = highFrequencyRange[0]; i <= highFrequencyAverage; i++){
-    highFrequencyAverage += spectrum[i];
-  }
-  highFrequencyAverage /= (highFrequencyRange[1] - highFrequencyRange[0] + 1);
-
-  let lowFrequencyHeight = map(lowFrequencyAverage, 0, 255, 0.5, 2);
-  let highFrequencyHeight = map(highFrequencyAverage, 0, 255, 0.5, 2);
-
-  // console.log(highFrequencyHeight);
-  // console.log(lowFrequencyHeight);
-
   fill(80, 160, 90); // Green semi-circles
   for (let i = 0; i < 5; i++) {
-    arc(width / 2 - 120 + i * 60, height - 150*scaleFactor, lowFrequencyHeight, lowFrequencyHeight, PI, 0);
+    arc(width / 2 - 120 + i * 60, height - 150*scaleFactor, 60*scaleFactor, 60*scaleFactor, PI, 0);
   }
 
   fill(200, 60, 60); // Red semi-circles
   for (let i = 0; i < 4; i++) {
-    arc(width / 2 - 90 + i * 60, height - 150*scaleFactor, highFrequencyHeight, highFrequencyHeight, 0, PI);
+    arc(width / 2 - 90 + i * 60, height - 150*scaleFactor, 60*scaleFactor, 60*scaleFactor, 0, PI);
   }
 
   // The circle refreshes, to change the speed of this the number after framecount needs to be changed.
@@ -214,6 +211,7 @@ function drawBaseStructure(scaleFactor) {
     resetCircleSize();
   }
 }
+
 
 // Draw circles for tree trunk and branches with noise-based sway
 function drawCircles(scaleFactor) {
@@ -316,11 +314,6 @@ function resetCircleSize(){
   for (let i = 0; i < circleSizes.length; i++) {
     circleSizes[i] = 0;
   }
-}
-
-// Initalises the sound
-function preload(){
-  song = loadSound('Music/755199__danjfilms__biblically-accurate-angel-dying-death-of-a-god.wav');
 }
 
  // This function plays or stops the sound.
