@@ -9,6 +9,14 @@ let circleSizes = [];
 let noiseOffsets = [];
 let swayNoiseOffset; // Noise offset for sway effect
 
+// Intialise varibles which will be used for sound
+let song;
+let fft;
+let numBins = 128;
+let smoothing = 0.5;
+let button;
+
+//Class for the clouds
 class Cloud {
   constructor(x, y) {
     this.x = x;
@@ -101,6 +109,13 @@ function setup() {
   }
 
   initaliseClouds();
+
+  // This part of the code creates a button at the bottom of the canvas which allows the user to start or pause the sound file.
+  fft = new p5.FFT(smoothing, numBins);
+  button = createButton('Play/Pause');
+  button.position((width - button.width) / 2, height - button.height - 2);
+  button.mousePressed(play_pause);
+
 }
 
 function draw() {
@@ -139,6 +154,9 @@ function draw() {
     cloud.show();
   }
 
+  //Get the frequency spectrum data from the source sound
+  let spectrum = fft.analysis;
+
   // Draw tree animation
   drawBaseStructure(scaleFactor);
   drawCircles(scaleFactor);
@@ -158,14 +176,37 @@ function drawBaseStructure(scaleFactor) {
   rectMode(CENTER);
   rect(width / 2, height - 150*scaleFactor, 350*scaleFactor, 80*scaleFactor);
 
+  // Map the frequency spectrum to low and high frequencies
+  let lowFrequencyAverage = 0;
+  let highFrequencyAverage = 0;
+
+  let lowFrequencyRange = [0, 30];
+  let highFrequencyRange = [90, 120];
+
+  for (let i = lowFrequencyRange[0]; i <= lowFrequencyRange; i++){
+    lowFrequencyAverage += spectrum[i];
+  }
+  lowFrequencyAverage /= (lowFrequencyRange[1] - lowFrequencyRange[0] + 1);
+
+  for (let i = highFrequencyRange[0]; i <= highFrequencyAverage; i++){
+    highFrequencyAverage += spectrum[i];
+  }
+  highFrequencyAverage /= (highFrequencyRange[1] - highFrequencyRange[0] + 1);
+
+  let lowFrequencyHeight = map(lowFrequencyAverage, 0, 255, 0.5, 2);
+  let highFrequencyHeight = map(highFrequencyAverage, 0, 255, 0.5, 2);
+
+  // console.log(highFrequencyHeight);
+  // console.log(lowFrequencyHeight);
+
   fill(80, 160, 90); // Green semi-circles
   for (let i = 0; i < 5; i++) {
-    arc(width / 2 - 120 + i * 60, height - 150*scaleFactor, 60*scaleFactor, 60*scaleFactor, PI, 0);
+    arc(width / 2 - 120 + i * 60, height - 150*scaleFactor, lowFrequencyHeight, lowFrequencyHeight, PI, 0);
   }
 
   fill(200, 60, 60); // Red semi-circles
   for (let i = 0; i < 4; i++) {
-    arc(width / 2 - 90 + i * 60, height - 150*scaleFactor, 60*scaleFactor, 60*scaleFactor, 0, PI);
+    arc(width / 2 - 90 + i * 60, height - 150*scaleFactor, highFrequencyHeight, highFrequencyHeight, 0, PI);
   }
 
   // The circle refreshes, to change the speed of this the number after framecount needs to be changed.
@@ -277,8 +318,31 @@ function resetCircleSize(){
   }
 }
 
+// Initalises the sound
+function preload(){
+  song = loadSound('Music/755199__danjfilms__biblically-accurate-angel-dying-death-of-a-god.wav');
+}
+
+ // This function plays or stops the sound.
+function play_pause(){
+  if (song.isPlaying()){
+    song.stop();
+  } else {
+    song.loop();
+  }
+}
+
 // Adjust canvas size on window resize
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   initaliseClouds(); // The clouds get reset everytime the canvas gets adjusted.
+  resizeButton();
+}
+
+// This function resizes the button in line with the size of the window.
+function resizeButton(){
+  let buttonWidth = windowWidth * 0.1; // the width of the button is directly related to the width of the window
+  let buttonHeight = windowHeight * 0.05; // the hight of the button is directly related to the height of the window
+  button.size(buttonWidth, buttonHeight);
+  button.position((windowWidth - buttonWidth)/2, windowHeight - buttonHeight - 20); // this sets the location of the button in relation to the window
 }
