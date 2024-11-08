@@ -108,7 +108,7 @@ class Cloud {
 
 // Initalises the sound
 function preload(){
-  song = loadSound('Music/755199__danjfilms__biblically-accurate-angel-dying-death-of-a-god.wav'); //Directory of the song which is used.
+  song = loadSound('Music/587894__seth_makes_sounds__heavenly-synth.wav'); //Directory of the song which is used.
   fft = new p5.FFT(smoothing, numBins); // Create a new instance of p5.FFT() object.
   song.connect(fft);
 }
