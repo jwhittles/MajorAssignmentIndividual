@@ -1,5 +1,7 @@
 # Individual Submission
 
+I achknoweldge the use of AI which aided me in implementing the class structure of the Cloud, specifically the use of fft.
+
 ## Interacting with the code
 To interact with this code it is very simple. There is a button at the bottom of the screen which will play and pause a sound file which is hard coded into the code.
 
@@ -9,14 +11,14 @@ I chose to animate the group code through audio, and specifically fft analysis a
 This is unique from the other members of the group as one member chose to do further implementation of perlin noise. Specifically, more circles were added to the original code and perlin noise was used to make them float and move around the screen in a random pattern. The other member of the group used time to influence the original artwork. Specially the background colour and the size of the circles on the canvas would change over time.
 
 ## Inspiration
-A strong inspiration for this implementation was images which already hhave movement involved. I believe that using music to influence the size of the artwork would make an artwork more interesting. Furthermore, being able to insert any piece of of music which an individual chose would therefore make the artwork more personal to that person. This would allow for the individual to make a greater connection with the artwork. Some examples are shown [here](https://giphy.com/gifs/opening-grayscale-grow-l3q2RlV4Nb4NPdfHO).
+A strong inspiration for this implementation was images which already have movement involved. I believe that using music to influence the size of the artwork would make an artwork more interesting. Furthermore, being able to insert any piece of music which an individual chose would therefore make the artwork more personal to that person. This would allow for the individual to make a greater connection with the artwork. Some examples are shown [here](https://giphy.com/gifs/opening-grayscale-grow-l3q2RlV4Nb4NPdfHO).
 
-Another specific inspiration is Vincent Van Gogh's painting 'Starry Night' which has always been a piece of art which has interested me. If the clouds and the circles could be influenced by sound and specifically music I believe it would create another intersting element to this amazing piece of art.
+Another specific inspiration is Vincent Van Gogh's painting 'Starry Night' which has always been a piece of art which has interested me. If the clouds and the circles could be influenced by sound and specifically music, I believe it would create another interesting element to this amazing piece of art.
 
 <img src="Images/Starry Night.png">
 
 ## Technical Explanation
-The sound elemts of the code was initialised in the following lines of code. The clouds array allowed the the clouds to be modified in the Cloud class.
+The sound elements of the code was initialised in the following lines of code. The clouds array allowed the the clouds to be modified in the Cloud class.
 
     let song;
     let fft;
@@ -25,7 +27,7 @@ The sound elemts of the code was initialised in the following lines of code. The
     let button;
     let clouds = [];
 
-In the Cloud class a display variable was made which took the average of the fft's amplitude. This allowed the the clouds to grow and shrink in line with the amplitude of the song.
+In the Cloud class a display variable was made which took the average of the fft's amplitude. This allowed the clouds to grow and shrink in line with the amplitude of the song.
 
 
     display(spectrumValue){
@@ -35,7 +37,7 @@ In the Cloud class a display variable was made which took the average of the fft
         ellipse(this.x, this.y, this.size); // the cloud is redrawn with this variables taken into account.
   }
 
-The sound was then initalised before the setup function
+The sound was then initalised before the setup function.
 
     function preload(){
         song = loadSound('Music/755199__danjfilms__biblically-accurate-angel-dying-death-of-a-god.wav'); //Directory of the song which is used.
@@ -43,7 +45,7 @@ The sound was then initalised before the setup function
         song.connect(fft);
     }
 
-The button which allowed the sound to be played and paused was initalised here. This was resized depending on the size of the window.
+The button which allowed the sound to be played and paused was initialised here. This was resized depending on the size of the window.
 
     button = createButton('Play/Pause'); // The text which is located in the button.
     button.position((width - button.width) / 2, height - button.height - 2); // The size of the button.
